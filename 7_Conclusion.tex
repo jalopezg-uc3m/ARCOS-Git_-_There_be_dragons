@@ -1,0 +1,81 @@
+% ==== CONCLUSION ====
+\section{Conclusion}
+
+\begin{frame}{Closing words}
+  \begin{itemize}
+  \item Git is powerful. \alert{REALLY!}
+  \item Although targetted to SCM, it may be used to store (large) binary data and replicate it to remote sites
+  \item Sysadmins: start versioning \texttt{/etc} today
+  \item Read more at: \texttt{http://git-scm.org/} or \texttt{git-*(1)} manual pages
+  \item ``I am now a git expert\ldots{} Am I?''
+  \end{itemize}
+\end{frame}
+
+\def\cmdlist#1{\bgroup
+  \fontsize{5.1}{6.6}\selectfont
+  \foreach \i/\j in {#1} {\if\i1\color{red}\fi\j\\}
+  \egroup}
+\begin{frame}{Wait! There is more\ldots}
+  \begin{columns}
+    \column{.166\textwidth}
+    Porcelain\par
+    \cmdlist{1/git-add,     0/git-am,    1/git-archive, 1/git-bisect,
+             1/git-branch,  1/git-bundle,1/git-checkout,1/git-cherry-pick,
+             0/git-citool,  1/git-clean, 1/git-clone,   1/git-commit,
+             0/git-describe,1/git-diff,  1/git-fetch,   0/git-format-patch,
+             1/git-gc,      0/git-grep,  0/git-gui,     1/git-init,
+             1/git-log,     1/git-merge, 0/git-mv,      0/git-notes,
+             1/git-pull}
+
+    \column{.166\textwidth}
+    \cmdlist{1/git-push,         0/git-range-diff,1/git-rebase,     1/git-reset,
+             1/git-revert,       0/git-rm,        0/git-shortlog,   1/git-show,
+             1/git-stash,        1/git-status,    0/git-submodule,  1/git-tag,
+             0/git-worktree,     1/git-config,    0/git-fast-export,0/git-fast-import,
+             1/git-filter-branch,0/git-mergetool, 0/git-pack-refs,  0/git-prune,
+             1/git-reflog,       1/git-remote,    0/git-repack,     0/git-replace,
+             1/git-annotate,     1/git-blame}
+
+    \column{.166\textwidth}
+    \cmdlist{0/git-count-objects,  0/git-difftool,   1/git-fsck,        1/git-help,
+             1/git-instaweb,       0/git-merge-tree, 1/git-rerere,      1/git-show-branch,
+             0/git-verify-commit,  0/git-verify-tag, 0/git-whatchanged, 0/git-archimport,
+             0/git-cvsexportcommit,0/git-cvsimport,  0/git-cvsserver,   0/git-imap-send,
+             0/git-p4,             0/git-quiltimport,0/git-request-pull,0/git-send-email,
+             0/git-svn}
+    Plumbing\par
+    \cmdlist{0/git-apply,       0/git-checkout-index,0/git-commit-graph}
+
+    \column{.166\textwidth}
+    \cmdlist{1/git-commit-tree,   1/git-hash-object,   0/git-index-pack,0/git-merge-file,
+             0/git-merge-index,   0/git-mktag,         1/git-mktree,    0/git-multi-pack-index,
+             0/git-pack-objects,  0/git-prune-packed,  0/git-read-tree, 0/git-symbolic-ref,
+             0/git-unpack-objects,1/git-update-index,  1/git-update-ref,1/git-write-tree,
+             1/git-cat-file,      0/git-cherry,        0/git-diff-files,0/git-diff-index,
+             0/git-diff-tree,     0/git-for-each-ref,  0/git-get-tar-commit-id,0/git-ls-files,
+             0/git-ls-remote,     1/git-ls-tree}
+
+    \column{.166\textwidth}
+    \cmdlist{0/git-merge-base,    0/git-name-rev,    0/git-pack-redundant,0/git-rev-list,
+             0/git-rev-parse,     0/git-show-index,  0/git-show-ref,      0/git-unpack-file,
+             0/git-var,           0/git-verify-pack, 1/git-daemon,        0/git-fetch-pack,
+             0/git-http-backend,  0/git-send-pack,   0/git-update-server-info,0/git-http-fetch,
+             0/git-http-push,     0/git-parse-remote,0/git-receive-pack,  0/git-shell,
+             0/git-upload-archive,0/git-upload-pack, 0/git-check-attr,    0/git-check-ignore,
+             0/git-check-mailmap,   0/git-check-ref-format}
+
+    \column{.166\textwidth}
+    \cmdlist{0/git-column,        0/git-credential,        0/git-credential-cache,0/git-credential-store,
+             0/git-fmt-merge-msg, 0/git-interpret-trailers,0/git-mailinfo,0/git-mailsplit,
+             0/git-merge-one-file,0/git-patch-id,          0/git-sh-i18n, 0/git-sh-setup,
+             0/git-stripspace}
+    \vrule height .41\textheight width0pt
+  \end{columns}
+\end{frame}
+
+\begin{frame}[standout]{Thanks!}
+  \centering
+  \tikz\path node[font=\fontsize{38}{38}\selectfont,opacity=0.14,
+                  text width=\textwidth,align=center]{Thank you for listening!}
+             node[font=\fontsize{56}{56}\selectfont]{¿?};
+\end{frame}

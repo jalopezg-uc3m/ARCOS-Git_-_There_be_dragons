@@ -1,0 +1,103 @@
+% ==== ADDITIONAL STUFF ====
+\section{Additional stuff}
+
+\begin{frame}{Configuration (1/2)}
+  \begin{itemize}
+  \item \alert{480+} options. Git searches configuration at:
+    \begin{description}[]
+    \item[/etc/gitconfig] System-wide configuration.
+    \item[\~{}/.gitconfig] User-specific configuration.
+    \item[\$GIT\_DIR/config] Repository specific.
+    \end{description}
+  \item Can be edited manually or using \texttt{git-config(1)}, e.g.\\[-.7ex]
+    {\ttfamily\tiny \$ git config [--system|--global|--local] user.email 'John Doe'}\\[1em]
+    \tikz\node[TTfamily]
+              {[user]\\
+               email = jalopezg@inf.uc3m.es\\
+               name = Javier López-Gómez\\
+               \ldots{}};\\[1ex]
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Configuration (2/2)}
+  \texttt{alias.*} options may be used to create command aliases, e.g.\\[1ex]
+  \tikz\node[TTfamily]
+            {\$ git config --global alias.sb 'show-branch\ \ @\ \ @\{push\}'\\
+              \$ git sb\\
+              {\color{cred}!} [@] Updated README.md\newline
+              \phantom{!}{\color{cgreen}!} [@\{push\}] Closes issue \#16\\
+              --\\
+              {\color{cred}+}\phantom{+} [@] \ldots{}};\\[2em]
+  \alert{FYI, see the \texttt{git-config(1)} manual page.}
+\end{frame}
+
+\begin{frame}{Fsck and garbage collection}
+  \begin{description}[]\itemsep=2em
+  \item[git-fsck(1)] Verifies the connectivity and validity of the objects.\\
+    \tikz\node[TTfamily]
+              {\$ git fsck [--unreachable] [--no-reflogs] [--lost-found] [\ldots{}]};
+  \item[git-gc(1)] Runs housekeeping tasks, e.g. pack objects/refs, remove unreachable objects, prune reflog, etc.\footnote{\texttt{git gc --auto} may automatically run as part of some git commands.}
+    \tikz\node[TTfamily]
+              {\$ git gc [--aggressive] [--auto] [\ldots{}]};
+  \end{description}
+\end{frame}
+
+\begin{frame}{Hooks (1/2)}
+  Hooks are programs that are executed at certain points, e.g. after a merge \emph{(post-merge)}, or before git-receive-pack updates refs \emph{(pre-receive)}.
+  
+  \begin{itemize}[<+->]
+  \item Invoked locally/on the remote end\footnote{Stdout and stderr are forwarded.}
+  \item Must be executable (+x)
+  \item IN: environment, command-line arguments, stdin\\ OUT: stdout, stderr, exit status
+  \item Can be used for commit validation, issue management or triggering a build (CI)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Hooks (2/2)}
+  See templates installed into \texttt{.git/hooks/} and the \texttt{githooks(5)} manual page.\\[2.7em]
+  \begin{columns}
+    \ttfamily\scriptsize
+    \column{.33\textwidth}
+    applypatch-msg\\
+    pre-applypatch\\
+    post-applypatch\\
+    pre-commit\\
+    prepare-commit-msg\\
+    commit-msg\\
+    post-commit
+    \column{.33\textwidth}
+    pre-rebase\\
+    post-checkout\\
+    post-merge\\
+    pre-push\\
+    pre-receive\\
+    update\\
+    post-receive
+    \column{.33\textwidth}
+    post-update\\
+    push-to-checkout\\
+    pre-auto-gc\\
+    post-rewrite\\
+    sendemail-validate\\
+    fsmonitor-watchman\\
+    p4-pre-submit
+  \end{columns}
+\end{frame}
+
+\begin{frame}{git-daemon, git-instaweb}
+  ``git-daemon - A really simple server for Git repositories'' [\texttt{git-daemon(1)}], e.g.\footnote{It normally listens on port TCP 9418.}\\[1ex]
+    \tikz\node[TTfamily]
+              {[alice@earth \~{}]\$ git daemon --verbose --base-path=\$HOME/repos \textbackslash{}\ --reuseaddr --export-all \$HOME/repos/*/.git\\[2em]
+              [bob@mars \~{}]\$ git clone git://earth/foo};\\[2em]
+
+  git-instaweb allows browsing a repository\footnote{Requires perl-cgi and lighttpd.}, e.g.\\[1ex]
+    \tikz\node[TTfamily]
+              {\$ git instaweb [--local] --httpd=lighttpd --port=8080\\
+              \$ git instaweb --stop};
+\end{frame}
+
+\begin{frame}{Other projects}
+  \centering
+  \tikz[every node/.style={font=\fontsize{28}{28}\selectfont,mLightBrown83}]\path
+    node{git-annex} ++(-4em,-9em) node[opacity=.74]{git-crypt} ++(12em, 4em) node[opacity=.59]{libgit2};
+\end{frame}

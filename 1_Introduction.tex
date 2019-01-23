@@ -1,0 +1,78 @@
+% ==== INTRODUCTION ====
+\section{Introduction}
+
+\begin{frame}{SCM/Revision control systems}
+  ``Version control is a system that records changes to a file or set of files over time so that you can recall specific versions later (\ldots{}) if you screw things up or lose files, you can easily recover.'' [\texttt{https:///git-scm.org/}]\\[2em]
+  
+  What you get:
+  \begin{itemize}
+  \item Compare changes over time or revert files.
+  \item See who introduced an issue.
+  \item Make experimental changes (and merge them).
+  \item \ldots{}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{RCS models: centralized/distributed}
+  \begin{columns}
+    \column{.5\textwidth}
+    \centering
+    \tikz\graph[spring layout,nodes={remote,as=}] {
+      a[fill=mDarkTeal] -- { b, c, d, e, f };
+    };\par
+    \textbf{Centralized:} Subversion (SVN), CVS\ldots{}
+
+    \column{.5\textwidth}
+    \centering
+    \tikz\graph[spring layout,node distance=31pt,nodes={remote,as=}] {
+      a -- { b, c -- { e -- h, g }, d -- { f, g } };
+    };\par
+    \textbf{Distributed:} git, Mercurial (hg)\ldots{}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{git - the stupid content tracker (1/3)}
+  This is not GitHub, nor GitLab\ldots{}\\[4ex]
+
+  \begin{columns}
+    \tikzset{forbidden/.style={forbidden sign,line width=.6ex,inner xsep=0pt,inner ysep=0pt,
+        draw=red}}
+    \column{.5\textwidth}
+    \centering\tikz\node[forbidden]{\includegraphics[width=1in]{img/github-logo.png}};
+    
+    \column{.5\textwidth}
+    \centering\tikz\node[forbidden]{\includegraphics[width=1in]{img/gitlab-logo.png}};
+  \end{columns}
+\end{frame}
+
+\begin{frame}{git - the stupid content tracker (2/3)}
+  \begin{center}
+    \includegraphics[width=1in]{img/git-scm_logo_2x.png}
+  \end{center}
+
+  Git: a distributed RCS.\par
+  Started by Linus Torvalds; currently maintained by Junio C Hamano.
+\end{frame}
+
+\begin{frame}{git - the stupid content tracker (3/3)}
+  \begin{itemize}
+  \item \alert{139} separate binaries, wrapped by \texttt{git(1)}; some of them accept lots of options! e.g. \texttt{git-log} parses 100+ options
+  \item Divided into high level (porcelain) and low level (plumbing) commands
+  \item Largely documented:\par
+    {\ttfamily\small\$ basename --suffix=.1.gz /usr/share/man/man1/git* | xargs man | wc -l\\
+      53260} (=870 pages PDF)
+  \item Target of this talk: \emph{people using Git}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Minimum set of commands}
+  \centering
+  \begin{tabular}{|l||>{\ttfamily\scriptsize}p{.5\textwidth}|}
+    \hline
+    Initialization & git clone\newline git init                   \\ \hline
+    Interrogation  & git log\newline   git status\newline git diff\\ \hline
+    Manipulation   & git add\newline   git commit                 \\ \hline
+    Interaction    & git push\newline  git pull                   \\
+    \hline
+  \end{tabular}
+\end{frame}

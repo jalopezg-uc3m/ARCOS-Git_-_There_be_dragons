@@ -1,0 +1,220 @@
+% ==== [(l)user] PORCELAIN ====
+\section{\emph{[(l)user]} Porcelain}
+
+\begin{frame}{Simple (and incomplete) FSM}
+  \centering
+  \tikz[shorten >=1pt,node distance=74pt,every node/.style={font=\tiny},
+    every state/.style={white,draw=mDarkTeal!74!black!77,top color=mDarkTeal!74!black!34,bottom color=mDarkTeal!74!black!63},
+    initial text={git init/git clone},
+    fwd/.style={->,sloped,bend left=10,above},
+    bwd/.style={<-,sloped,bend right=10,below}]
+       {
+         \node[state,initial] (clean)                         {Clean WD};
+         \node[state]         (dirty)  [above right=of clean] {Dirty WD};
+         \node[state]         (staged) [right=of dirty]       {Staged};
+         \node[state]         (merge) [below right=of clean]  {Merging};
+         
+         \path (clean) [fwd] edge node {[make changes]} (dirty)
+                       [bwd] edge node {git-checkout}   (dirty)
+                       [fwd] edge node {git-pull/git-merge}   (merge)
+                       [bwd] edge node {git-merge --continue} (merge)
+               (dirty) [fwd] edge node {git-add}        (staged)
+                       [bwd] edge node {git-reset}      (staged)
+              (staged) [fwd] edge node              {git-commit}       (clean)
+                       [fwd,bend left=30] edge node {git-reset --hard} (clean);
+         \path[->] (clean)   edge [loop above] node[text width=3em] {git push\\ git fetch}      ()
+                             edge [loop below] node {git clean}     ();
+         \path[->] (dirty)   edge [loop above] node {git diff}          ()
+                   (staged)  edge [loop above] node {git diff --cached} ();
+       }
+\end{frame}
+
+\begin{frame}{Init/Clone a repository}
+  To get started, you can either
+  \begin{itemize}
+  \item Create an empty repository, e.g.\\
+    \tikz\node[TTfamily]
+              {\$ git init [--bare] \~{}/foo/};
+
+  \item Obtain a copy of a remote repository\footnote{The \texttt{--depth} option creates a shallow clone (history pruned). To unshallow run \texttt{git pull --unshallow}.}, e.g.\\
+    \tikz\node[TTfamily]
+              {\$ git clone [--depth=1] https://earth/public/repo.git/};
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Overview of branches}
+  \begin{lstlisting}[style=bash]
+    # Create a branch started off from 'HEAD'
+    $ git branch foo HEAD
+    $ git checkout foo
+    Switched to branch 'foo'
+
+    $ git checkout -b foo HEAD # Shorthand for the above commands`\pause`
+
+    # Create an orphan branch (new totally disconnected history)
+    $ git checkout --orphan foo HEAD`\pause`
+
+    $ git branch -d foo      # Delete a branch
+    $ git branch -m foo bar  # Move/rename a branch
+
+    # List branches
+    $ git branch --verbose
+    * `{\color{cgreen}foo}`    d7832a7f Closes issue #17
+      master 99446829 Closes issue #16`\pause`
+
+    # Merge a branch
+    $ git merge foo
+    # Resolve conflicts + 'git add <pathspec> ' + 'git merge --continue'
+    # or 'git merge --abort'
+  \end{lstlisting}
+\end{frame}
+
+\begin{frame}{Working with remotes (1/4)}
+  Git can manage remote sites (remotes\footnote{See \texttt{git-remote(1)} for more information.}) whose branches you track.
+  \begin{columns}
+    \column{.55\textwidth}
+    \begin{itemize}
+    \item Supports http[s]://, ssh://, git:// and file://.
+    \item \texttt{git-clone} automatically adds the remote \emph{origin} (the URL you cloned)
+    \item May have different push/fetch URLs
+    \item<2> \alert{REMEMBER:} Git is distributed
+    \end{itemize}
+
+    \column{.45\textwidth}
+    \centering
+    \tikz[every label/.style={font=\tiny}]
+         {
+           \graph[layered layout,grow=up,node distance=31pt,nodes={remote,as=}]
+                 { a[fill=mDarkTeal,label=below:local copy] -- { b, c, d, e, f } };
+           \draw<2> (c) -- ++(0pt,3em) node(g)[remote,anchor=south]{}
+                 (e) to [bend left] (g)
+                 (f) to [bend left] (g);
+         }
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Working with remotes (2/4)}
+  \begin{itemize}[<+->]
+  \item Remotes may be added with \texttt{git-remote}, e.g.\\[1ex]
+    \tikz\node[TTfamily]
+              {\$ git remote add earth https://earth/public/repo.git/};\par
+    Default is to track all branches\footnote{Otherwise, see \texttt{-t \LT branch\GT}}.
+  \item \texttt{git-push} pushes refs (+ objects) to a remote, e.g.\\[1ex]
+    \tikz\node[TTfamily]
+              {\$ git push earth master};
+  \item \texttt{git-fetch} fetches refs (+ objects) from a remote, e.g.\\[1ex]
+    \tikz\node[TTfamily]
+              {\$ git fetch earth master};\par
+    Fetched refs will be in \texttt{refs/remotes/earth/*}.
+  \item \texttt{git-pull} is equivalent to \texttt{git fetch} + \texttt{git merge FETCH\_HEAD}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Working with remotes (3/4)}
+  Trying a {\ttfamily\scriptsize\$ git push earth master}
+  \begin{itemize}[<+->]
+  \item On the remote end: receive object pack + update refs
+  \item Synching only requires commit 63feb3c
+  \item \alert{Non-FF}. If earth updates refs/heads/master, commit 9f7f586 is lost!\par
+    Typically, remotes will deny non-fast-forward pushes\footnote{See the \texttt{-f} git-push(1) option and \texttt{receive.denyNonFastForwards}.}
+  \end{itemize}\vfill
+
+  \only<1-3>{\begin{columns}
+    \tikzset{every label/.style={font=\tiny}}
+    \column{.5\textwidth}
+    \centering
+    \tikz\graph[tree layout,grow'=up,nodes={simple commit obj,as=}]
+               { a[label=left:7d050cf] <- aa[opacity=.5,label=left:63feb3c,
+                   label=above:refs/heads/master]};\par
+    Local
+    \column{.5\textwidth}
+    \centering
+    \tikz{
+      \graph[tree layout,grow'=up,nodes={simple commit obj,as=}]
+            { a[label=left:7d050cf] <- b[mLightBrown,label=left:9f7f586,
+                label=above:refs/heads/master]};
+      \draw<2->[<-,densely dashed] (a) -- ++(4ex,4ex)
+            node[simple commit obj,anchor=south west,opacity=.5,label=right:63feb3c]{};
+    }\par
+    Remote \texttt{earth}
+  \end{columns}}
+
+  \only<4>{\tikz\node[TTfamily]{
+    {\color{cred}! [rejected]}\ \ \ \ \ \ \ \ master -\GT master (non-fast-forward)\\
+    \color{cred}error: failed to push some refs to '\ldots'};
+  }
+\end{frame}
+
+\begin{frame}{Working with remotes (4/4)}
+  Trying a {\ttfamily\scriptsize\$ git pull earth master}\footnote{The merge might be avoided; see the \texttt{--rebase} option.}\vfill
+
+  \begin{columns}
+    \tikzset{every node/.style={font=\tiny},
+      every label/.style=}
+    \column{.5\textwidth}
+    \centering
+    \tikz{
+      \graph[tree layout,grow'=up,nodes={simple commit obj,as=}]
+            { a[label=left:7d050cf] <- aa[opacity=.5,label=left:63feb3c] };
+      \draw<2->[<-] (a) -- ++(4ex,4ex)
+            node (9f7f586) [simple commit obj,mLightBrown,anchor=south west,label=right:9f7f586]{};
+      \draw<3>[<-] (aa) -- ++(0ex,4ex)
+           node (618c1ca) [simple commit obj,anchor=south,label=right:618c1ca]{}
+                (9f7f586) -- (618c1ca);
+      \path<1-2> node[above=0pt of aa]                  {master};
+      \path<2->  node[above=0pt of 9f7f586,anchor=west] {FETCH\_HEAD -\GT{} earth/master};
+      \path<3>   node[above=0pt of 618c1ca]             {master};
+    }\par
+    Local
+    \column{.5\textwidth}
+    \centering
+    \tikz{
+      \graph[tree layout,grow'=up,nodes={simple commit obj,as=}]
+            { a[label=left:7d050cf] <- b[mLightBrown,label=left:9f7f586,
+            label=above:refs/heads/master] };
+    }\par
+    Remote \texttt{earth}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Bug hunting}
+  Git helps you to find bugs (and their authors)\ldots\\[1em]
+  \begin{description}[]\itemsep=2em
+  \item[git-bisect(1)] uses binary search to find a ``bad'' commit\\[1ex]
+    \tikz\node[TTfamily]
+              {\$ git bisect start HEAD v1.2 {\color{cyellow}\# HEAD is bad, v1.2 is good}\\[1ex]
+              \$ git bisect [good|bad] {\color{cyellow}\# Manually mark it as working/broken}\\
+              \ldots\\
+              \$ git bisect run my\_script arguments {\color{cyellow}\# Or automatically (good if \$? = 0)}\\[1ex]
+              \$ git bisect reset};
+
+  \item[git-blame(1)] annotates each line of a file with revision information\\[1ex]
+    \tikz\node[TTfamily]
+              {\$ git blame README.md\\
+                63feb3c8 (jalopezg 2019-01-18 19:36:40 +0100 1) \GT This file was created by \ldots\\
+              ded8aa43 (jalopezg 2019-01-22 20:18:04 +0100 2) foo};
+  \end{description}
+\end{frame}
+
+\begin{frame}{Specifying revisions (1/2)}
+  Some Git commands take symbolic revision parameters (names specific commit or all commits reachable from that commit)\footnote{This is an overview; see gitrevisions(7) for the complete list.}.
+
+  \begin{description}[]
+  \item[\LT sha1\GT] SHA-1 object name, or a non-ambiguous leading substring.
+  \item[\LT refname\GT] A ref name, e.g. refs/heads/master. Search order: {\ttfamily\scriptsize \$GIT\_DIR/\LT refname\GT, refs/, refs/tags/, refs/heads/, refs/remotes/, refs/remotes/\LT refname\GT/HEAD}.
+  \item[\LT refname\GT@\{\LT n\GT\}] The n-th prior value of that ref.
+  \item[\LT rev\GT\^{}] The first parent.
+  \item[\LT rev\GT\~{}\LT n\GT] The n-th generation ancestor.
+  \item[\LT rev\GT:\LT path\GT] Names the blob or tree of \LT rev\GT.
+  \end{description}
+\end{frame}
+
+\begin{frame}{Specifying revisions (2/2)}
+  Specifying ranges:
+
+  \begin{description}[]
+  \item[\^{}\LT rev\GT] Exclude commits reachable from \LT rev\GT.
+  \item[\LT rev1\GT..\LT rev2\GT] A shorthand for \^{}rev1 rev2, i.e. commits reachable from rev2, but not from rev1, or $\big(rev1,\ rev2\big]$
+  \item[\LT rev1\GT...\LT rev2\GT] Commits reachable either from rev1 or rev2, but not from both.
+  \end{description}
+\end{frame}

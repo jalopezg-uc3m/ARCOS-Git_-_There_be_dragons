@@ -1,0 +1,98 @@
+% ==== [r00t] PLUMBING ====
+\section{\emph{[r00t]} Plumbing}
+
+\begin{frame}{Repository layout}
+  \begin{columns}
+    \column{.5\textwidth}
+    \only<1>{\begin{description}[]
+      \item[objects/:] the object store.
+      \item[objects/{[0-9a-f][0-9a-f]}/:] loose objects.
+      \item[objects/pack/:] object packs (store many objects in compressed form).
+      \item[refs/:] references are stored in subdirectories of this directory.
+      \item[packed-refs:] the same as refs/ but in a more efficient way.
+      \item[HEAD:] the HEAD symref.
+    \end{description}}
+    \only<2>{\begin{description}[]
+      \item[config:] repository specific configuration file.
+      \item[hooks/:] (described later).
+      \item[index:] the ``index'' file.
+      \item[info/:] additional information, e.g. \texttt{info/grafts}.
+      \item[logs/:] reflogs are stored here.
+      \item[shallow:] similar to \texttt{info/grafts} but internally used for shallow clones.
+    \end{description}}
+    
+    \column{.5\textwidth}
+    \centering
+    \begin{forest} for tree={directory tree}
+      [repository/
+        [.git/
+          [objects/
+            [pack/] [{[0-9a-f][0-9a-f]}/] ]
+          [refs/
+            [heads/] [tags/] [remotes/] ]
+          [packed-refs] [HEAD] [config] [hooks/] [index] [info/] [logs/] [shallow]
+          [\dots]
+        ]
+        [\ldots]
+      ]
+    \end{forest}
+  \end{columns}
+  \hfill {\tiny More at \texttt{gitrepository-layout(5)}.}
+\end{frame}
+
+\begin{frame}[fragile]{HOWTO: create a commit using the ``index''}
+  \begin{lstlisting}[style=bash]
+    $ echo foo > bar.txt
+
+    # Add 'bar.txt' to the index
+    $ git update-index --add bar.txt`\pause`
+
+    # Create a tree object from the current index
+    $ git write-tree
+    6d21ed3d662ea6040da2fe0fd66fe80fefe689a5`\pause`
+
+    # Create a new commit object
+    $ git commit-tree -p HEAD -m 'Added bar.txt' 6d21ed3d662ea6040da2fe0fd66fe80fefe689a5
+    02a7fb9f9145086807cbe2ed45ea82149c3d1b34`\pause`
+
+    # Update refs/heads/master
+    $ git update-ref refs/heads/master 02a7fb9f9145086807cbe2ed45ea82149c3d1b34`\pause`
+
+    $ git log -1
+    commit 02a7fb9f9145086807cbe2ed45ea82149c3d1b34 (HEAD -> master)
+    Author: Javier López Gómez <jalopezg@inf.uc3m.es>
+    Date:   Fri Jan 18 18:59:39 2019 +0100
+
+    Added bar.txt
+  \end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{HOWTO: commit arbitrary content}
+  \vskip -1em\begin{lstlisting}[style=bash]
+    # Create blob object for 'README.md'; use 'git cat-file blob 1f6c266' to see blob contents
+    $ git hash-object -t blob -w --path=README.md --stdin <<EOF
+    > This file was created by git-hash-object.
+    EOF
+    1f6c2663d33465dcd83f2151b15fb57369f29570`\pause`
+
+    # Create tree object (add 'README.md' entry to the HEAD tree)
+    $ git ls-tree HEAD | awk '{ print; } END { print "100644 blob 1f6c2663d33465dcd83f2151b15fb57369f29570\tREADME.md"; }' | git mktree
+    0082679644a2b435b6cf09a65324292da28a41b4`\pause`
+
+    # Create a new commit object
+    $ git commit-tree -p HEAD -m 'Added README.md' 0082679644a2b435b6cf09a65324292da28a41b4
+    9f7f586f952c515893dd6597936f6fea64dd17ce`\pause`
+
+    # Update refs/heads/master
+    $ git update-ref refs/heads/master 9f7f586f952c515893dd6597936f6fea64dd17ce`\pause`
+
+    # WTF?
+    $ git status
+    On branch master
+    Changes to be committed:
+      (use "git reset HEAD <file>..." to unstage)
+
+            deleted:    README.md`\pause`
+    $ git reset --hard HEAD
+  \end{lstlisting}
+\end{frame}

@@ -1,0 +1,97 @@
+\documentclass[aspectratio=43]{beamer}
+%\documentclass[aspectratio=169]{beamer}
+\usepackage[english]{babel}
+\usepackage[utf8]{luainputenc}
+\usepackage[edges]{forest}
+\usepackage{fontspec,array,listings,lstautogobble}
+
+\usepackage{tikz}
+\usetikzlibrary{chains,shapes.symbols,graphs,graphdrawing,automata,arrows.meta}
+\usepackage{pgf-lookup-and-require-fix}
+\usegdlibrary{trees,layered,force}
+
+\forestset{
+  directory tree/.style={folder,grow'=0,fit=band,edge={mLightBrown,densely dotted},font=\ttfamily\tiny,s sep=4pt,inner ysep=.1pt}
+}
+\tikzset{
+  simple tag obj/.style={name=#1,fill=olive!50!black!50,regular polygon,regular polygon sides=5,label={north:#1}},
+  simple commit obj/.style={circle,fill=mDarkTeal},
+  simple tree obj/.style 2 args={name=#1,fill=mLightBrown,label={north:#1},
+    append after command={
+      \foreach \i/\j in {#2} {(#1) -- (\i) node[font=\tiny,sloped,inner ysep=.1pt,below,midway]{\j}}
+    }
+  },
+  simple blob obj/.style={name=#1,draw,densely dashed,label={north:#1},font=\ttfamily\fontsize{4}{4}\selectfont,text width=44pt},
+  every label/.style={font=\tiny,rotate=60,text width=4.7em,align=center},
+  symref/.style={teal!66!black},
+  TTfamily/.style={draw,text width=.85\textwidth,font=\ttfamily\tiny\bfseries},
+  warning/.style={regular polygon,regular polygon sides=3,draw,
+    red,node contents=!,inner sep=0pt,font=\scriptsize,
+    append after command={node[right=1ex of \tikzlastnode,inner xsep=0pt,red] {#1}}
+  },
+  mLightBrown83/.style={mLightBrown!83!black},
+  >=Latex,
+  remote/.style={regular polygon,regular polygon sides=6,fill=teal},
+}
+\definecolor{cred}{HTML}{dc322f}
+\definecolor{cgreen}{HTML}{859900}
+\definecolor{cyellow}{HTML}{b58900}
+
+\def\Q{\textbf{Q: }}
+\def\A{\textbf{A: }}
+\def\warning#1{\vrule height4ex width0ex \tikz\node[warning={#1}];}
+\def\gitRebaseWarning{\warning{USE WITH CARE. Read git-rebase implications!}}
+\def\LT{\textless}
+\def\GT{\textgreater}
+
+\lstset{autogobble}
+\lstdefinestyle{bash}{
+  language=bash,
+  commentstyle=\color{cyellow},
+  escapechar=`,
+  basicstyle=\ttfamily\tiny\bfseries,
+  breaklines=true,
+  showspaces=false,
+  framextopmargin=0pt,
+  framexrightmargin=0pt,
+  framexbottommargin=0pt,
+  framexleftmargin=0pt,
+}
+
+\usetheme[usetotalslideindicator]{metropolis}
+% ==== BEGIN THEME FIXES ====
+\makeatletter
+\let\@@TOC=\tableofcontents
+\def\tableofcontents[#1]{\bgroup\parskip=0pt\@@TOC[#1]\egroup}
+\makeatother
+\AtBeginDocument{
+  \setbeamertemplate{section in toc}[square]
+  \setbeamertemplate{itemize items}{\raisebox{.5ex}{\rule{.5ex}{.5ex}}}
+}
+% ==== END THEME FIXES ====
+
+\title{\uppercase{Git - There be dragons!}}
+\subtitle{from \emph{(l)user} to \emph{r00t} in 60 minutes}
+\author{Javier L. Gómez}
+\institute{Computer Architecture and Technology Area (ARCOS)---University Carlos III of Madrid}
+\titlegraphic{\includegraphics[width=0.88in]{img/git-scm_logo_2x.png}}
+
+\begin{document}
+
+\maketitle
+\begin{frame}{LICENSE}
+  \centering This presentation can be redistributed and/or modified under the terms of CC-BY-NC \includegraphics[height=.5\baselineskip]{img/LICENSE.png} license.
+\end{frame}
+\begin{frame}{Agenda}
+  \tableofcontents[hidesubsections]
+\end{frame}
+
+\input{1_Introduction.tex}
+\input{2_GitEssentials.tex}
+\input{3_Porcelain.tex}
+\input{4_MorePorcelain.tex}
+\input{5_Plumbing.tex}
+\input{6_AdditionalStuff.tex}
+\input{7_Conclusion.tex}
+
+\end{document}
