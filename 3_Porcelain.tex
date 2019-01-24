@@ -4,7 +4,7 @@
 \begin{frame}{Simple (and incomplete) FSM}
   \centering
   \tikz[shorten >=1pt,node distance=74pt,every node/.style={font=\tiny},
-    every state/.style={white,draw=mDarkTeal!74!black!77,top color=mDarkTeal!74!black!34,bottom color=mDarkTeal!74!black!63},
+    every state/.style={white,draw=mDarkTeal!74!black!77,top color=mDarkTeal!74!black!34,bottom color=mDarkTeal!74!black!73},
     initial text={git init/git clone},
     fwd/.style={->,sloped,bend left=10,above},
     bwd/.style={<-,sloped,bend right=10,below}]
@@ -15,13 +15,13 @@
          \node[state]         (merge) [below right=of clean]  {Merging};
          
          \path (clean) [fwd] edge node {[make changes]} (dirty)
-                       [bwd] edge node {git-checkout}   (dirty)
-                       [fwd] edge node {git-pull/git-merge}   (merge)
-                       [bwd] edge node {git-merge --continue} (merge)
-               (dirty) [fwd] edge node {git-add}        (staged)
-                       [bwd] edge node {git-reset}      (staged)
-              (staged) [fwd] edge node              {git-commit}       (clean)
-                       [fwd,bend left=30] edge node {git-reset --hard} (clean);
+                       [bwd] edge node {git checkout}   (dirty)
+                       [fwd] edge node {git pull/git merge}   (merge)
+                       [bwd] edge node {git merge --continue} (merge)
+               (dirty) [fwd] edge node {git add}        (staged)
+                       [bwd] edge node[text width=5em] {git rm --cached\\ git reset}      (staged)
+              (staged) [fwd,bend left=20] edge node[text width=5em] {git commit\\ git reset --hard}       (clean)
+                       [bwd,bend left=37] edge node {git rm/git mv} (clean);
          \path[->] (clean)   edge [loop above] node[text width=3em] {git push\\ git fetch}      ()
                              edge [loop below] node {git clean}     ();
          \path[->] (dirty)   edge [loop above] node {git diff}          ()
