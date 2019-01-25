@@ -49,17 +49,83 @@
   \end{columns}
 \end{frame}
 
+{
+\tikzset{every label/.style={font=\tiny},
+        commit 1/.style={simple commit obj,fill=teal},
+        commit 2/.style={simple commit obj,fill=teal!74},
+        commit 3/.style={simple commit obj,fill=teal!56}}
 \begin{frame}{Rebase (+ interactive rebase!) (1/3)}
+  Sometimes you fork a branch and it becomes outdated w.r.t. its parent. Quite probably, you would merge the parent branch.\par
+  \begin{center}
+    \tikz[hole/.style={densely dotted},
+          merge/.style={simple commit obj,mLightBrown}]{
+      \graph[tree layout,grow'=right,nodes={simple commit obj,as=}] {
+        a <- aa[red] <- { [nudge down=3ex] b[label=above:A] <- bb[label=above:B] <- bbb[label=above:C] }
+      };
+      \draw<2->[<-] (aa) -- ++(3ex,3ex) node(c)[commit 1]{} -- ++(3ex,0ex) node(cc)[commit 2]{};
+      \draw<2->[hole] (cc) -- ++(5ex,0ex) node(ccc)[commit 3]{};
+      \draw<3->[<-] (bbb) -- ++(5ex,0ex) node(bbbb)[merge]{}
+                    (ccc) -- (bbbb);
+      \draw<4->[hole] (ccc) -- ++(10ex,0ex) node(cccc)[simple commit obj]{}
+                    (bbbb) -- ++(10ex,0ex) node(bbbbb)[merge]{};
+      \draw<4->[<-] (cccc) -- (bbbbb);
+      % branch heads
+      \foreach \i/\j/\k in {1/aa/master,1-2/bbb/topic,
+                          2-3/ccc/master, 3/bbbb/topic,
+                          4/cccc/master,4/bbbbb/topic}
+        \path<\i> node[right=0pt of \j,font=\tiny]{\k};
+    }
+  \end{center}
+  
+  \onslide<5>{
+    This clutters project history. Reapplying \texttt{topic} commits on top of \texttt{master} is better!\par
+    \begin{center}
+    \tikz\graph[tree layout,grow'=right,nodes={simple commit obj,as=}] {
+        a <- aa[red] <- c[commit 1,label=above:A'] <- cc[commit 2,label=above:B'] <- ccc[commit 3,label=above:C',label=right:master]
+            <- { [nudge down=3ex] b <- bb <- bbb[label=right:topic] }
+      };
+    \end{center}
+
+    \tikz\node[TTfamily]
+              {{\color{cyellow}\# Assuming that 'topic' is the current branch, this gives the result above}\\
+              \$ git rebase master};
+  }
 \end{frame}
 
 \begin{frame}{Rebase (+ interactive rebase!) (2/3)}
+  It is one of the most powerful Git commands. In fact, it can be used to rewrite project history (next slide).\par\pause
+  If there are conflicts, you will have to resolve them (as in merge).\pause
+
+  \warning{\texttt{GIT-REBASE(1)} IMPLICATIONS:}
+  \begin{itemize}
+  \item Requires rewriting commits and is \alert{PROBLEMATIC} if you already pushed those objects
+  \item You can break things: \alert{YOU HAVE BEEN WARNED!}
+  \item If you ever force-push a rebased branch, others will have to fix their history. See git-rebase(1), section ``RECOVERING FROM UPSTREAM REBASE''.
+  \end{itemize}
 \end{frame}
 
-\begin{frame}{Rebase (+ interactive rebase!) (3/3)}
+\begin{frame}[fragile]{Rebase (+ interactive rebase!) (3/3)}
+  \texttt{git-rebase(1)} has an interactive mode in which you can edit/reorder/remove the commits which are rebased.\\ It is very common to rewrite part of a branch to have a more meaningful history, e.g.
+
+  \begin{center}
+    \tikz\graph[tree layout,grow'=right,nodes={simple commit obj,as=}] {
+        a <- aa[red] <- { c <- cc[label=right:master],
+            b <- bb[label=below:\LT after-this-commit\GT]
+              <- bbb[commit 1,label=above:A] <- bbbb[commit 2,label=above:B] <- bbbbb[commit 3,label=above:C,label=right:topic] }
+      };
+  \end{center}
+
+  \begin{lstlisting}[style=bash]
+    # This fires up an editor and gives you the chance to edit the commit list before they are applied (commits A, B and C)
+    $ git rebase -i <after-this-commit>
+  \end{lstlisting}
+
+  \gitRebaseWarning
 \end{frame}
+}
 
 \begin{frame}[fragile]{More about fixing history (1/2)}
-  This is so common that \texttt{git-commit(1)} has the \texttt{--squash} and \texttt{--fixup} options. They mark commits to be automatically squashed. Rewriting occurs after a {\ttfamily\scriptsize\$ git rebase --autosquash}.
+  So common that \texttt{git-commit(1)} has the \texttt{--squash} and \texttt{--fixup} options. They mark commits to be automatically squashed. Rewriting occurs after a {\ttfamily\scriptsize\$ git rebase --autosquash}.
   \pause
   \begin{lstlisting}[style=bash]
     $ git log --oneline
