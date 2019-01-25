@@ -81,8 +81,8 @@
     This clutters project history. Reapplying \texttt{topic} commits on top of \texttt{master} is better!\par
     \begin{center}
     \tikz\graph[tree layout,grow'=right,nodes={simple commit obj,as=}] {
-        a <- aa[red] <- c[commit 1,label=above:A'] <- cc[commit 2,label=above:B'] <- ccc[commit 3,label=above:C',label=right:master]
-            <- { [nudge down=3ex] b <- bb <- bbb[label=right:topic] }
+        a <- aa[red] <- c[commit 1] <- cc[commit 2] <- ccc[commit 3,label=right:master]
+            <- { [nudge down=3ex] b[label=above:A'] <- bb[label=above:B'] <- bbb[label=above:C',label=right:topic] }
       };
     \end{center}
 
